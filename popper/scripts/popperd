@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+bin="popper"
+log="/tmp/popper.log"
+
+print_help() {
+    printf "Usage: $1 [start|stop|restart|show|status]\n"
+    printf "Scope: starts popper demonized\n"
+}
+
+popper_stop() {
+    printf "stopping $bin"
+    ppid=$(pidof $bin)
+    if [[ $ppid ]]; then 
+        kill -INT $ppid
+        printf "... done\n"
+    else printf "... not running\n"
+    fi
+
+}
+
+popper_status() {
+    ppid=$(pidof $bin)
+    printf "$bin is "
+    if [[ $ppid ]]; then printf "running\n"
+    else printf "not running\n"
+    fi
+}
+
+popper_start() {
+    printf "starting $bin"
+    $(exec 0>&- && exec 1>&- && exec 2>&- && popper -l $log)
+    printf "... done\n"
+}
+
+popper_restart() {
+    popper_stop
+    popper_start
+}
+
+popper_msgs() {
+    cat $log | less
+}
+
+main() {
+    case $1 in
+        start)
+            popper_start
+        ;;
+        stop)
+            popper_stop
+        ;;
+        restart)
+            popper_restart
+        ;;
+        show)
+            popper_msgs
+        ;;
+        status)
+            popper_status
+        ;;
+        *)
+            print_help
+            exit 1
+    esac
+}
+
+main $1

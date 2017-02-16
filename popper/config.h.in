@@ -1,0 +1,2 @@
+constexpr bool debug{@DEBUG@};
+constexpr char version[]{"@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"};

@@ -1,0 +1,8 @@
+#!/bin/sh
+# postinst script
+
+setcap CAP_SETPCAP=eip ${CMAKE_INSTALL_PREFIX}/bin/${SERVER_EXECUTABLE}
+chmod 011 ${CMAKE_INSTALL_PREFIX}/bin/${SERVER_EXECUTABLE}
+chmod 011 ${CMAKE_INSTALL_PREFIX}/bin/${CLIENT_EXECUTABLE}
+
+exit 0
