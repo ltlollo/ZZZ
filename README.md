@@ -1,2 +1,2 @@
 # ZZZ
-deprecated
+deprecated project / old garbage
