@@ -1,0 +1,20 @@
+set(LTO_FLAGS "-fno-rtti -fPIE")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++11 -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG -march=native ${LTO_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=native ${LTO_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${LTO_FLAGS}")
+
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -O2 -fPIE")
+set(CMAKE_EXE_LINKER_FLAGS "${LTO_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${LTO_FLAGS}")
+
+add_library(libcritto critto_satto.cpp)
+add_library(utils utils.cpp)
+add_library(data data.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(libcritto utils)
+target_link_libraries(${PROJECT_NAME} data)
+target_link_libraries(${PROJECT_NAME} libcritto)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)

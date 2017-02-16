@@ -1,0 +1,76 @@
+Scope: This is just the implementation of a silly idea i had. Wouldn't be cool if you could deduce reverisble text manipulation
+instructions from a string, and, given that that string has enough entropy, it's long, and it's not reused enough times, use them
+to encrypt a text? Then you could do all kind of crazy stuff, like apply the same transformation on the string itself, and blablabla...
+
+
+Command line parameters:
+mandatory:    "-e" to encrypt OR "-d" to decrypt OR "-a" to generate the next algoritm
+AND
+              "--alg $afile" to read the key file
+AND
+              "--key $kfile" to read the algoritm file
+
+optional:     "--in $infile" to read the message from $infile, stind is used if not specified
+              "--out $outfile" to write the outpur to $outfile, stout is used if not specified
+
+Guarantees:
+if the command line IS correct, the program should ALWAYS:
+1.return an encrypted version of the stdin, or stdin itself.
+2.leave intact the file passed as "--in" and "--arg" and "--key".
+
+Structure: these are some random notes about the program and its components
+
+main:
+The main program, declares the functions, sets up the state machine, runs it.
+
+macchina_antani:
+This is a "rapresentation" of how the program flow should go...
+
+.---------------------------------.
+|  __safe:  true | false          |
+|                |                |
+|  GlobalScope   |                |
+|    "->PExec    |                |
+|  (flist.begin) |                |
+|         '------+->SafetyGuard   |
+|                |    __rfunc()   |
+|         .------+-~SafteyGuard   |
+|         |      |                |
+:        ...    ...               :
+|         |      |                |
+|         v      |                |
+|       PExec    |                |
+|        (i)     |                |      .------------------------------.
+|         '------+->SafetyGuard   |      | __safe:                      |
+|                |    __rfunc()   |      | true ->flist[i].cleanexit()  |
+|         .------+-~SafteyGuard~~~+~~~~~>|------------------------------|
+|         |      |                |      | false ->flist[i].rollback()  |
+:        ...    ...               :      |         __print_error()      |
+|         |      |                |      '------------------------------'
+|         v      |                |
+|       PExec    |                |
+|    (flist.end) |                |
+|         '------+->SafetyGuard   |
+|                |    __rfunc()   |
+|         .------+-~SafteyGuard   |
+|         v      |                |
+| ~GlobalScope   |                | 
+'---------------------------------'
+
+Pexec has in scope:{the safety guard that gets initted with __safe false, one unlock function of __safe;}, if everything is ok __safe
+has the opportunity to be unlocked, SG ges out of scope, and ~SG:_safe true gets called. if an except is thrown, __safe is not unlocked,
+~SG:_safe false is called.
+
+utils:
+This place is just about code reuse, the functions are NOT safe to use, checks are done by callee functions.
+
+critto_santo:
+This are the main functions, they read the input and command line, call the enc/dec routines, output the message.
+
+when !on_alg cosntructing a shadow_key which is key.size()xCHAR_BIT array to speed pos_l access in apply_op DOES NOT WORK :((
+that version used for(mask) sum, did not try ((uChar>>0)&1)+...+((uChar>>7)&1) expanded..., but was not the slow part.
+the deal is >~8*mem vs. +~10%spd
+
+throw int is meh.
+
+why scopeguards? beacause yes.
